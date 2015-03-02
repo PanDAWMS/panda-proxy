@@ -22,6 +22,9 @@ def insertSecretKeyForPandaID(req,PandaID,secretKey):
 
 # get event ranges
 def getEventRanges(req,**kwd):
+    # check URL
+    if not baseURL.endswith('/getEventRanges'):
+        return "ERROR : wrong baseURL"
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
@@ -40,6 +43,9 @@ def getEventRanges(req,**kwd):
 
 # update event range
 def updateEventRange(req,**kwd):
+    # check URL
+    if not baseURL.endswith('/updateEventRange'):
+        return "ERROR : wrong baseURL"
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
