@@ -1,0 +1,153 @@
+LoadModule authz_host_module modules/mod_authz_host.so
+LoadModule alias_module modules/mod_alias.so
+LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule mime_magic_module modules/mod_mime_magic.so
+LoadModule mime_module modules/mod_mime.so
+LoadModule include_module modules/mod_include.so
+LoadModule log_config_module modules/mod_log_config.so
+LoadModule env_module modules/mod_env.so
+LoadModule deflate_module modules/mod_deflate.so
+LoadModule setenvif_module modules/mod_setenvif.so
+LoadModule dir_module modules/mod_dir.so
+LoadModule ssl_module modules/mod_ssl.so
+LoadModule headers_module modules/mod_headers.so
+LoadModule gridsite_module modules/mod_gridsite.so
+LoadModule status_module modules/mod_status.so
+
+# WSGI
+LoadModule wsgi_module modules/mod_wsgi.so
+
+
+User  atlpan
+Group zp
+
+<IfModule prefork.c>
+StartServers         25
+MinSpareServers      25
+ServerLimit          512
+MaxSpareServers      512
+MaxClients           512
+MaxRequestsPerChild  2000
+</IfModule>
+
+ServerName pandaproxy.cern.ch
+
+DocumentRoot "@@install_purelib@@/pandaproxy"
+
+<Files ~ "\.(py|pyc|conf)$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+RedirectMatch 403 "/panda.py$"
+
+<Directory />
+    Options FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+    Deny from 192.203.218.14
+</Directory>
+
+<Location /server-status>
+    SetHandler server-status
+    Order deny,allow
+    Deny from all
+    Allow from localhost
+</Location>
+
+<IfModule mod_wsgi.c>
+   WSGIDaemonProcess pandasrv_daemon processes=100 threads=2 home=/home/atlpan
+   WSGIProcessGroup pandasrv_daemon
+   WSGIApplicationGroup %{GLOBAL}
+   WSGIScriptAliasMatch ^/proxy/panda/(.+)$ @@install_purelib@@/pandaproxy/proxy/panda.py
+   WSGISocketPrefix @@install_dir@@/var/log/panda/wsgisocks/wsgi.proxy
+</IfModule>
+
+
+Listen 25128
+<VirtualHost *:25128>
+
+RewriteEngine on
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+RewriteRule .* - [F]
+
+<Directory "@@install_purelib@@/pandapoxy/proxy">
+
+   <Limit GET POST>
+       Order allow,deny
+       Allow from all
+       Deny from 192.203.218.14
+   </Limit>
+
+   # allow .py
+   <Files ~ "\.py$">
+       Order allow,deny
+       Allow from all
+   </Files>
+
+   # enable CGI	for FastCGI/WSGI
+   Options FollowSymLinks +ExecCGI
+
+   # mod_gridsite
+   GridSiteIndexes	on
+   GridSiteAuth		on
+   GridSiteDNlists	/etc/grid-security/dn-lists/
+   GridSiteEnvs         on
+
+</Directory>
+
+</VirtualHost>
+
+Listen 25228
+<VirtualHost *:25228>
+
+RewriteEngine on
+RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
+RewriteRule .* - [F]
+
+# CERN security recommendation to only allow the seven strongest ssl ciphers
+SSLProtocol  -all +TLSv1 +SSLv3
+SSLCipherSuite HIGH:MEDIUM:+SSLv3
+
+SSLEngine               on
+SSLCertificateFile      /etc/grid-security/hostcert.pem
+SSLCertificateKeyFile   /etc/grid-security/hostkey.pem
+SSLCACertificatePath    /etc/grid-security/certificates
+SSLVerifyClient         optional
+SSLVerifyDepth          10
+SSLOptions              +ExportCertData +StdEnvVars
+
+<Directory "@@install_purelib@@/pandaproxy/proxy">
+
+   # allow .py
+   <Files ~ "\.py$">
+       Order allow,deny
+       Allow from all
+   </Files>
+
+   # enable CGI	for FastCGI/WSGI
+   Options FollowSymLinks +ExecCGI
+
+   # mod_gridsite
+   GridSiteIndexes       on
+   GridSiteAuth          on
+   GridSiteDNlists       /etc/grid-security/dn-lists/
+   GridSiteGSIProxyLimit 1
+   GridSiteEnvs          on
+</Directory>
+                                                                               
+</VirtualHost>
+
+LogLevel info
+
+LogFormat "%t %h \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%t %h \"%r\" %>s %b" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+CustomLog @@install_dir@@/var/log/panda/panda_proxy_access_log common
+ErrorLog @@install_dir@@/var/log/panda/panda_proxy_error_log
+
+PidFile @@install_dir@@/var/log/panda/panda_proxy_httpd.pid
+
+TypesConfig /etc/mime.types
