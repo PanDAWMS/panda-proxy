@@ -159,6 +159,7 @@ setup(
     url='https://twiki.cern.ch/twiki/bin/view/Atlas/PanDA',
     packages=[ 'pandaproxy',
                'pandaproxy.proxycore',
+               'pandaproxy.proxytest',
                'pandaproxy.proxy',
               ],
     data_files=[

@@ -27,5 +27,5 @@ export HOME=/home/atlpan
 export X509_USER_PROXY=FIXME
 
 # panda proxy URLs
-export PANDA_URL='http://@@host_name@@:25128/proxy/panda'
-export PANDA_URL_SSL='https://@@host_name@@:25228/proxy/panda'
+export PANDA_URL='http://@@host_name@@:25064/proxy/panda'
+export PANDA_URL_SSL='https://@@host_name@@:25128/proxy/panda'

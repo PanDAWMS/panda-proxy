@@ -10,8 +10,8 @@ _logger = PandaLogger().getLogger('ProxyInterface')
         
 
 # insert secretKey
-def insertSecretKeyForPandaID(req,PandaID,secretKey=None):
-    logger = LogWrapper(_logger,"<PandaID={0}>".format(PandaID))
+def insertSecretKeyForPandaID(req,pandaID,secretKey=None):
+    logger = LogWrapper(_logger,"<PandaID={0}>".format(pandaID))
     retDict = {}
     # check permission
     if not ProxyUtils.hasPermission(req):
@@ -23,9 +23,11 @@ def insertSecretKeyForPandaID(req,PandaID,secretKey=None):
     # generate key
     if secretKey == None:
         secretKey = uuid.uuid4().hex
+    # use unicode
+    secretKey = unicode(secretKey)
     logger.debug("secretKey={0}".format(secretKey))
     # exec
-    redStat = redirector.proxyCore.insertSecretKey(PandaID,secretKey)
+    redStat = redirector.proxyCore.insertSecretKey(pandaID,secretKey)
     if redStat == True:
         msgStr = "done"
         retDict['errorCode'] = 0
@@ -43,13 +45,12 @@ def insertSecretKeyForPandaID(req,PandaID,secretKey=None):
 
 # get event ranges
 def getEventRanges(req,**kwd):
-    # check URL
-    if not baseURL.endswith('/getEventRanges'):
-        return "ERROR : wrong baseURL"
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
         return "ERROR : "+newKwd
+    # check URL
+    baseURL += '/getEventRanges'
     # get PandaID
     if not 'pandaID' in newKwd:
         return "ERROR : no PandaID"
@@ -64,13 +65,12 @@ def getEventRanges(req,**kwd):
 
 # update event range
 def updateEventRange(req,**kwd):
-    # check URL
-    if not baseURL.endswith('/updateEventRange'):
-        return "ERROR : wrong baseURL"
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
         return "ERROR : "+newKwd
+    # check URL
+    baseURL += '/updateEventRange'
     # get eventRangeID
     if not 'eventRangeID' in newKwd:
         return "ERROR : no eventRangeID"
