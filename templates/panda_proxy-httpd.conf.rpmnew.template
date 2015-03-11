@@ -65,8 +65,8 @@ RedirectMatch 403 "/panda.py$"
 </IfModule>
 
 
-Listen 25128
-<VirtualHost *:25128>
+Listen 25064
+<VirtualHost *:25064>
 
 RewriteEngine on
 RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
@@ -99,8 +99,8 @@ RewriteRule .* - [F]
 
 </VirtualHost>
 
-Listen 25228
-<VirtualHost *:25228>
+Listen 25128
+<VirtualHost *:25128>
 
 RewriteEngine on
 RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)

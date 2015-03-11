@@ -18,10 +18,6 @@ def insertSecretKeyForPandaID(req,PandaID,secretKey=None):
         msgStr = "permission denied"
         retDict['errorCode'] = 1
         retDict['errorDiag'] = msgStr
-        tmpKeys = req.subprocess_env.keys()
-        tmpKeys.sort()
-        for tmpKey in tmpKeys:
-            logger.error("%s %s" % (tmpKey,req.subprocess_env[tmpKey]))
         logger.error(msgStr)
         return json.dumps(retDict)
     # generate key

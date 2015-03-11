@@ -1,5 +1,6 @@
 # redirect request after key check
 
+import os
 import sys
 import urllib3
 
@@ -16,8 +17,8 @@ class ProxyRedirector:
         self.remoteHostConfig = {
             'aipanda007.cern.ch:25443' : {
                 'ca_certs'  : '/etc/grid-security/certificates/CERN-Root-2.pem',
-                'key_file'  : '/data/atlpan/x509up_u25606',
-                'cert_file' : '/data/atlpan/x509up_u25606'
+                'key_file'  : os.environ['X509_USER_PROXY'],
+                'cert_file' : os.environ['X509_USER_PROXY'],
                 }
             }
                            

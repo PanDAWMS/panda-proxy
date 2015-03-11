@@ -43,6 +43,8 @@ def hasPermission(req):
     # check DN or role
     # FIXME to read from cfg
     if not '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv1/CN=531497/CN=Robot' in \
+            req.subprocess_env['SSL_CLIENT_S_DN'] and \
+            not '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pandasv2/CN=614260/CN=Robot' in \
             req.subprocess_env['SSL_CLIENT_S_DN']:
         return False
     return True

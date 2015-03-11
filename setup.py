@@ -174,6 +174,10 @@ setup(
                 ('etc/init.d', ['templates/panda_proxy-ctl.exe.template',
                                    ]
                  ),
+                # crons
+                ('usr/bin', ['templates/panda_proxy-vomsrenew.sh.exe.template',
+                             ]
+                 ),
                 ],
     cmdclass={'install': install_panda,
               'install_data': install_data_panda}
