@@ -72,7 +72,7 @@ RewriteEngine on
 RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)
 RewriteRule .* - [F]
 
-<Directory "@@install_purelib@@/pandapoxy/proxy">
+<Directory "@@install_purelib@@/pandaproxy/proxy">
 
    <Limit GET POST>
        Order allow,deny

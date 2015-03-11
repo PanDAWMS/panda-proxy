@@ -1,12 +1,12 @@
 # core
 
-import Connection
+import ProxyConnection
 
 class ProxyCore:
 
     # constructor
     def __init__(self):
-        self.conn = Connection.Connection()
+        self.conn = ProxyConnection.Connection()
 
 
         

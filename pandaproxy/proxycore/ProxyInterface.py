@@ -1,22 +1,47 @@
+import uuid
+import json
 import ProxyUtils
 from ProxyRedirector import redirector
 
 # logger
 from pandalogger.PandaLogger import PandaLogger
+from pandalogger.LogWrapper import LogWrapper
 _logger = PandaLogger().getLogger('ProxyInterface')
         
 
 # insert secretKey
-def insertSecretKeyForPandaID(req,PandaID,secretKey):
+def insertSecretKeyForPandaID(req,PandaID,secretKey=None):
+    logger = LogWrapper(_logger,"<PandaID={0}>".format(PandaID))
+    retDict = {}
     # check permission
     if not ProxyUtils.hasPermission(req):
-        return "ERROR : permission denied"
-    _logger.debug("aaaa 2")
+        msgStr = "permission denied"
+        retDict['errorCode'] = 1
+        retDict['errorDiag'] = msgStr
+        tmpKeys = req.subprocess_env.keys()
+        tmpKeys.sort()
+        for tmpKey in tmpKeys:
+            logger.error("%s %s" % (tmpKey,req.subprocess_env[tmpKey]))
+        logger.error(msgStr)
+        return json.dumps(retDict)
+    # generate key
+    if secretKey == None:
+        secretKey = uuid.uuid4().hex
+    logger.debug("secretKey={0}".format(secretKey))
     # exec
     redStat = redirector.proxyCore.insertSecretKey(PandaID,secretKey)
     if redStat == True:
-        return "SUCCEEDED"
-    return "ERROR : failed"
+        msgStr = "done"
+        retDict['errorCode'] = 0
+        retDict['errorDiag'] = msgStr
+        retDict['secretKey'] = secretKey
+        logger.debug(msgStr)
+        return json.dumps(retDict)
+    msgStr = "failed with {0}".format(redStat)
+    retDict['errorCode'] = 2
+    retDict['errorDiag'] = msgStr
+    logger.error(msgStr)
+    return json.dumps(retDict)
 
 
 

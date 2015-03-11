@@ -7,7 +7,7 @@ entry point
 import sys
 import cgi
 
-from proxycore.Utils import DummyReq
+from proxycore.ProxyUtils import DummyReq
 
 
 # import web I/F
