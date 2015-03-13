@@ -4,26 +4,26 @@
 import os
 import urllib3
 
+# key registeration : used by only the panda server
 http = urllib3.PoolManager(
     cert_reqs='CERT_REQUIRED',
     ca_certs='/etc/grid-security/certificates/CERN-Root-2.pem',
     key_file=os.environ['X509_USER_PROXY'],
     cert_file=os.environ['X509_USER_PROXY']
     )
-
 pandaID = 123
 proxyURL = os.environ['PANDA_URL_SSL']
 data = {'pandaID':pandaID}
 res = http.request('POST',proxyURL+'/insertSecretKeyForPandaID',data)
-
 print res.status
 import json
 tmpDict = json.loads(res.data)
 print tmpDict
 secretKey = tmpDict['secretKey']
 
-http = urllib3.PoolManager()
 
+# get event ranges 
+http = urllib3.PoolManager()
 proxyURL = os.environ['PANDA_URL']
 data = {'pandaID':pandaID,
         'jobsetID':pandaID+1,
@@ -33,6 +33,7 @@ res = http.request('POST',proxyURL+'/getEventRanges',data)
 import cgi
 print cgi.parse_qs(res.data)
 
+# update event range
 data = {'eventRangeID':'0-'+str(pandaID)+'-1-2-3-4',
         'secretKey':secretKey,
         'eventStatus':'finished',
