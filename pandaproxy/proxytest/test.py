@@ -2,6 +2,7 @@
 # $ python /data/atlpan/srv/lib/python*/site-packages/pandaproxy/proxytest/test.py
 
 import os
+import uuid
 import requests
 
 # key registeration : used by only the panda server
@@ -64,7 +65,8 @@ data = {'pandaID':pandaID,
         'secretKey':secretKey,
         'publicKey':publicKey,
         'privateKey':privateKey,
-        'baseURL':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/khotest3'}
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+uuid.uuid4().hex}
 files = {'uploadFile':('testFile',open('favicon.ico','rb'))}
-res = requests.post(proxyURL+'/testIF',data=data,files=files)
+print data
+res = requests.post(proxyURL+'/setFileToS3',data=data,files=files)
 print res.text

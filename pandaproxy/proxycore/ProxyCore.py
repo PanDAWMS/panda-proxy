@@ -43,5 +43,11 @@ class ProxyCore:
 
 
 
+    # general method to get value
+    def getValue(self,key):
+        return self.conn.get(key)
+
+
+
 # singleton
 proxyCore = ProxyCore()

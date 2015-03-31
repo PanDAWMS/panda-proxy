@@ -13,10 +13,15 @@ from proxycore.ProxyUtils import DummyReq
 # import web I/F
 allowedMethods = []
 
-from proxyinterface.HttpInterface import insertSecretKeyForPandaID,getEventRanges,updateEventRange,getKeyPair,\
+from proxyinterface.HttpInterface import \
+    insertSecretKeyForPandaID,getEventRanges,updateEventRange,getKeyPair,\
     testIF
 allowedMethods += ['insertSecretKeyForPandaID','getEventRanges','updateEventRange','getKeyPair',
                    'testIF']
+
+from proxyinterface.S3Interface import \
+    getFileInfo,setFileToS3
+allowedMethods += ['getFileInfo','setFileToS3']
 
 
 # application

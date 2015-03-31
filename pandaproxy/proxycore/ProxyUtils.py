@@ -24,11 +24,17 @@ def checkKeyWords(kwd):
         return False,None,None,'no secretKey'
     secretKey = kwd['secretKey']
     del kwd['secretKey']
-    if not 'baseURL' in kwd:
-        return False,None,'no baseURL'
-    baseURL = kwd['baseURL'] 
-    del kwd['baseURL']
-    return True,secretKey,baseURL,kwd
+    if 'baseURL' in kwd:
+        baseURL = kwd['baseURL'] 
+        del kwd['baseURL']
+        return True,secretKey,baseURL,kwd
+    elif 'url' in kwd:
+        url = kwd['url']
+        del kwd['url']
+        return True,secretKey,url,kwd
+    else:
+        return False,None,'no URL or baseURL'
+    
 
 
 
