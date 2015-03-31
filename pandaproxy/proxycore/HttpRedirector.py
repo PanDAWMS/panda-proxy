@@ -2,7 +2,8 @@
 
 import os
 import sys
-import urllib3
+import urlparse
+import requests
 
 
 class HttpRedirector:
@@ -15,7 +16,7 @@ class HttpRedirector:
         # FIXME read from cfg
         self.remoteHostConfig = {
             'aipanda007.cern.ch:25443' : {
-                'ca_certs'  : '/etc/grid-security/certificates/CERN-Root-2.pem',
+                'ca_certs'  : '/etc/pki/tls/certs/CERN-bundle.pem',
                 'key_file'  : os.environ['X509_USER_PROXY'],
                 'cert_file' : os.environ['X509_USER_PROXY'],
                 }
@@ -34,10 +35,8 @@ class HttpRedirector:
         # 5 : internal server error
         try:
             # parse URL
-            url = urllib3.util.parse_url(baseURL)
-            hostName = url.host
-            if url.port != None:
-                hostName += ':{0}'.format(url.port)
+            url = urlparse.urlparse(baseURL)
+            hostName = url.netloc
             # check host
             if not hostName in self.remoteHostConfig:
                 return 1,"access to {0} is not allowed".format(hostName)
@@ -49,19 +48,19 @@ class HttpRedirector:
                 # get config
                 cfg = self.remoteHostConfig[hostName]
                 # make connection
-                http = urllib3.PoolManager(
-                    cert_reqs='CERT_REQUIRED',
-                    ca_certs=cfg['ca_certs'],
-                    key_file=cfg['key_file'],
-                    cert_file=cfg['cert_file']
-                    )
+                ca_certs=cfg['ca_certs']
+                key_file=cfg['key_file']
+                cert_file=cfg['cert_file']
                 # request
-                res = http.request('POST',baseURL,data)
-                if res.status == 200:
+                res = requests.post(baseURL,
+                                    data=data,
+                                    verify=ca_certs,
+                                    cert=(cert_file,key_file))
+                if res.status_code == 200:
                     retCode = 0
                 else:
                     retCode = 3
-                return retCode,res.data
+                return retCode,res.text.encode('ascii')
             else:
                 return 4,"unsupported protocol : {0}".format(url.scheme)
         except:

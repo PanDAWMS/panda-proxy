@@ -165,6 +165,8 @@ def getKeyPair(req,**kwd):
 
 # test I/F
 def testIF(req,**kwd):
+    retStr = ''
     for tmpKey,tmpVal in kwd.iteritems():
         _logger.debug('{0} {1}'.format(tmpKey,str(tmpVal)))
-    return "OK"
+        retStr += 'key={0} val={1}\n'.format(tmpKey,str(tmpVal))
+    return retStr
