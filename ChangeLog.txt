@@ -1,5 +1,8 @@
 Release Notes
 
+* 3/30/2015
+  * renamed to Http classes
+
 * 3/11/2015
   * added vomsrenew.sh
   * various bug fixes

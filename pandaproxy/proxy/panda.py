@@ -13,8 +13,10 @@ from proxycore.ProxyUtils import DummyReq
 # import web I/F
 allowedMethods = []
 
-from proxycore.ProxyInterface import insertSecretKeyForPandaID,getEventRanges,updateEventRange
-allowedMethods += ['insertSecretKeyForPandaID','getEventRanges','updateEventRange']
+from proxyinterface.HttpInterface import insertSecretKeyForPandaID,getEventRanges,updateEventRange,getKeyPair,\
+    testIF
+allowedMethods += ['insertSecretKeyForPandaID','getEventRanges','updateEventRange','getKeyPair',
+                   'testIF']
 
 
 # application

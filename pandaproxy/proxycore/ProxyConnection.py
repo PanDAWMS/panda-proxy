@@ -1,6 +1,13 @@
+import sys
+
 # connection class to DB
 
-class Connection:
+# logger
+from pandalogger.PandaLogger import PandaLogger
+_logger = PandaLogger().getLogger('ProxyConnection')
+
+
+class ProxyConnection:
     
     # constructor
     def __init__(self):
@@ -10,23 +17,43 @@ class Connection:
 
 
     # set
-    def set(self,key,val):
-        return self.conn.set(key,val)
-
+    def set(self,key,val,expire=None):
+        try:
+            dbgMsg = "setting key={0} val={1} expire={2} ".format(key,val,expire)
+            _logger.debug(dbgMsg)
+            if expire != None:
+                tmpStat = self.conn.setex(key,expire,val)
+            else:
+                tmpStat = self.conn.set(key,val)
+            return tmpStat,''
+        except:
+            errType,errValue = sys.exc_info()[:2]
+            errMsg = "failed to set key={0} val={1} expire={2} ".format(key,val,expire)
+            errMsg += "with {0}:{1}".format(errType,errValue)
+            _logger.error(errMsg)
+            return False,errMsg
+            
 
 
     # bulk set
-    def bulkSet(self,keyVals):
+    def bulkSet(self,keyVals,expire=None):
         pipe = self.conn.pipeline()
         for key,val in keyVals:
-            pipe.set(key,val)
+            pipe.set(key,val,ex=expire)
         return pipe.execute()
 
 
 
     # get
     def get(self,key):
-        return self.conn.get(key)
+        try:
+            return True,self.conn.get(key)
+        except:
+            errType,errValue = sys.exc_info()[:2]
+            errMsg = "failed to get value for key={0} ".format(key)
+            errMsg += "with {0}:{1}".format(errType,errValue)
+            _logger.error(errMsg)
+            return False,errMsg
 
 
 
@@ -36,3 +63,8 @@ class Connection:
         for key in keys:
             pipe.get(key)
         return pipe.execute()
+
+
+
+# singleton
+proxyConnection = ProxyConnection()

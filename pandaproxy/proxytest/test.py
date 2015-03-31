@@ -41,3 +41,13 @@ data = {'eventRangeID':'0-'+str(pandaID)+'-1-2-3-4',
 res = http.request('POST',proxyURL+'/updateEventRange',data)
 print res.data
 
+# get key-pair
+proxyURL = os.environ['PANDA_URL']
+data = {'pandaID':pandaID,
+        'publicKeyName':'BNL_ObjectStoreKey.pub',
+        'privateKeyName':'BNL_ObjectStoreKey',
+        'secretKey':secretKey,
+        'baseURL':'https://aipanda007.cern.ch:25443/server/panda'}
+res = http.request('POST',proxyURL+'/getKeyPair',data)
+import cgi
+print cgi.parse_qs(res.data)

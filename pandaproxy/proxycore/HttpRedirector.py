@@ -4,14 +4,13 @@ import os
 import sys
 import urllib3
 
-import ProxyCore
 
-
-class ProxyRedirector:
+class HttpRedirector:
 
     # constructor
     def __init__(self):
-        self.proxyCore = ProxyCore.ProxyCore()
+        from proxycore.ProxyCore import proxyCore
+        self.proxyCore = proxyCore
         # remote host config
         # FIXME read from cfg
         self.remoteHostConfig = {
@@ -63,17 +62,13 @@ class ProxyRedirector:
                 else:
                     retCode = 3
                 return retCode,res.data
-            elif url.scheme == 's3':
-                # TOBEDOME
-                pass
             else:
                 return 4,"unsupported protocol : {0}".format(url.scheme)
         except:
             errType,errValue = sys.exc_info()[:2]
             return 5,"internal server error {0}:{1}".format(errType,errValue)
-        
 
 
 
 # singleton
-redirector = ProxyRedirector()
+httpRedirector = HttpRedirector()

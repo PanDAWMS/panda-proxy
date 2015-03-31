@@ -160,6 +160,7 @@ setup(
     packages=[ 'pandaproxy',
                'pandaproxy.proxycore',
                'pandaproxy.proxytest',
+               'pandaproxy.proxyinterface',
                'pandaproxy.proxy',
               ],
     data_files=[
