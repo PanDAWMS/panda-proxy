@@ -4,6 +4,7 @@ import os
 import sys
 import urlparse
 import requests
+from proxyconfig import proxy_config
 
 
 class HttpRedirector:
@@ -13,19 +14,9 @@ class HttpRedirector:
         from proxycore.ProxyCore import proxyCore
         self.proxyCore = proxyCore
         # remote host config
-        # FIXME read from cfg
-        self.remoteHostConfig = {
-            'aipanda007.cern.ch:25443' : {
-                'ca_certs'  : '/etc/pki/tls/certs/CERN-bundle.pem',
-                'key_file'  : os.environ['X509_USER_PROXY'],
-                'cert_file' : os.environ['X509_USER_PROXY'],
-                },
-            'pandaserver.cern.ch:25443' : {
-                'ca_certs'  : '/etc/pki/tls/certs/CERN-bundle.pem',
-                'key_file'  : os.environ['X509_USER_PROXY'],
-                'cert_file' : os.environ['X509_USER_PROXY'],
-                },
-            }
+        self.remoteHostConfig = {}
+        # setup remote host config
+        self.setupRemoteHostConfig()
                            
 
 
@@ -71,6 +62,29 @@ class HttpRedirector:
         except:
             errType,errValue = sys.exc_info()[:2]
             return 5,"internal server error {0}:{1}".format(errType,errValue)
+
+
+
+    # setup config for remote hosts
+    def setupRemoteHostConfig(self):
+        try:
+            envTag = 'env:'
+            # loop over all config strings
+            for configStr in proxy_config.http.hostConfig.split(';'):
+                items = configStr.split(',')
+                hostNames = items[0].split('|')
+                # loop over all hosts
+                for hostName in hostNames:
+                    self.remoteHostConfig[hostName] = {}
+                    for item in items[1:]:
+                        mapKey,mapVal = item.split('^')[:2]
+                        # take param from environment variable
+                        if mapVal.startswith(envTag):
+                            mapVal = os.environ[mapVal[len(envTag):]]
+                        # append
+                        self.remoteHostConfig[hostName][mapKey] = mapVal
+        except:
+            pass
 
 
 

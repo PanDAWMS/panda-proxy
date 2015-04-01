@@ -160,12 +160,14 @@ setup(
     packages=[ 'pandaproxy',
                'pandaproxy.proxycore',
                'pandaproxy.proxytest',
+               'pandaproxy.proxyconfig',
                'pandaproxy.proxyinterface',
                'pandaproxy.proxy',
               ],
     data_files=[
                 # config files 
                 ('etc/panda', ['templates/panda_proxy-httpd.conf.rpmnew.template',
+                               'templates/panda_proxy.cfg.rpmnew.template',
                                ]
                  ),
                 # sysconfig

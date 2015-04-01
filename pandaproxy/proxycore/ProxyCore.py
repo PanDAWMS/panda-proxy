@@ -8,17 +8,25 @@ class ProxyCore:
         self.conn = proxyConnection
 
 
-        
+
+    # get access key from PandaID
+    def getKeyFromPandaID(self,pandaID):
+        return 'PandaID:{0}'.format(pandaID)
+
+
+
     # insert secret key
-    def insertSecretKey(self,attribute,secretKey,expire=None):
+    def insertSecretKey(self,pandaID,secretKey,expire=None):
         if expire == None:
             expire = 7*24*60*60
+        attribute = self.getKeyFromPandaID(pandaID)
         return self.conn.set(attribute,secretKey,expire=expire)
 
 
     
     # check secret key for PandaID
-    def checkSecretKey(self,attribute,secretKey):
+    def checkSecretKey(self,pandaID,secretKey):
+        attribute = self.getKeyFromPandaID(pandaID)
         tmpStat,keyInMemory = self.conn.get(attribute)
         if not tmpStat:
             return False
