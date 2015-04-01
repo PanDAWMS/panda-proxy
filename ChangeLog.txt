@@ -2,6 +2,7 @@ Release Notes
 
 * 4/1/2015
   * moved remote host config to cfg
+  * added getFileContent
 
 * 3/30/2015
   * added S3 stuff provided by KuoHao

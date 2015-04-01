@@ -73,7 +73,7 @@ data = {'pandaID':pandaID,
         'publicKey':publicKey,
         'privateKey':privateKey,
         'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
-files = {'uploadFile':('testFile',open('favicon.ico','rb'))}
+files = {'uploadFile':(fileName,open('favicon.ico','rb'))}
 print data
 res = requests.post(proxyURL+'/setFileToS3',data=data,files=files)
 print res.text
