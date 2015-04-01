@@ -11,9 +11,9 @@ key_file=os.environ['X509_USER_PROXY']
 cert_file=os.environ['X509_USER_PROXY']
 
 pandaID = 123
-proxyURL = os.environ['PANDA_URL_SSL']
+proxyURLSSL = 'https://aipanda084.cern.ch:25128/proxy/panda'
 data = {'pandaID':pandaID}
-res = requests.post(proxyURL+'/insertSecretKeyForPandaID',
+res = requests.post(proxyURLSSL+'/insertSecretKeyForPandaID',
                     data=data,
                     verify=ca_certs,
                     cert=(cert_file,key_file))
@@ -29,11 +29,11 @@ secretKey = tmpDict['secretKey']
 
 
 # get event ranges 
-proxyURL = os.environ['PANDA_URL']
+proxyURL = 'http://aipanda084.cern.ch:25064/proxy/panda'
 data = {'pandaID':pandaID,
         'jobsetID':pandaID+1,
         'secretKey':secretKey,
-        'baseURL':'https://aipanda007.cern.ch:25443/server/panda'}
+        'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
 res = requests.post(proxyURL+'/getEventRanges',data)
 import cgi
 print cgi.parse_qs(res.text.encode('ascii'))
@@ -43,7 +43,7 @@ print cgi.parse_qs(res.text.encode('ascii'))
 data = {'eventRangeID':'0-'+str(pandaID)+'-1-2-3-4',
         'secretKey':secretKey,
         'eventStatus':'finished',
-        'baseURL':'https://aipanda007.cern.ch:25443/server/panda'}
+        'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
 res = requests.post(proxyURL+'/updateEventRange',data)
 print res.text.encode('ascii')
 
@@ -52,7 +52,7 @@ data = {'pandaID':pandaID,
         'publicKeyName':'BNL_ObjectStoreKey.pub',
         'privateKeyName':'BNL_ObjectStoreKey',
         'secretKey':secretKey,
-        'baseURL':'https://aipanda007.cern.ch:25443/server/panda'}
+        'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
 res = requests.post(proxyURL+'/getKeyPair',data)
 tmpDict = cgi.parse_qs(res.text.encode('ascii'))
 print tmpDict

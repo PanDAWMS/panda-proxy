@@ -19,7 +19,12 @@ class HttpRedirector:
                 'ca_certs'  : '/etc/pki/tls/certs/CERN-bundle.pem',
                 'key_file'  : os.environ['X509_USER_PROXY'],
                 'cert_file' : os.environ['X509_USER_PROXY'],
-                }
+                },
+            'pandaserver.cern.ch:25443' : {
+                'ca_certs'  : '/etc/pki/tls/certs/CERN-bundle.pem',
+                'key_file'  : os.environ['X509_USER_PROXY'],
+                'cert_file' : os.environ['X509_USER_PROXY'],
+                },
             }
                            
 
