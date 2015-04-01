@@ -62,8 +62,8 @@ res = requests.post(proxyURL+'/getKeyPair',data)
 tmpDict = cgi.parse_qs(res.text.encode('ascii'))
 print tmpDict
 
-privateKey = tmpDict['privateKey']
-publicKey  = tmpDict['publicKey']
+privateKey = tmpDict['privateKey'][0]
+publicKey  = tmpDict['publicKey'][0]
 
 
 # upload file
