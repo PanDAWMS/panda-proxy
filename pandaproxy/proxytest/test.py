@@ -27,11 +27,13 @@ secretKey = tmpDict['secretKey']
 #
 # communication of the pilot with panda proxy
 
+# dummy jobsetID just for test
+jobsetID = 567
 
 # get event ranges 
 proxyURL = 'http://aipanda084.cern.ch:25064/proxy/panda'
 data = {'pandaID':pandaID,
-        'jobsetID':pandaID+1,
+        'jobsetID':jobsetID,
         'secretKey':secretKey,
         'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
 res = requests.post(proxyURL+'/getEventRanges',data)
@@ -39,8 +41,11 @@ import cgi
 print cgi.parse_qs(res.text.encode('ascii'))
 
 
+# dummy evetRangeID just for test
+eventRangeID = '0-'+str(pandaID)+'-1-2-3-4'
+
 # update event range
-data = {'eventRangeID':'0-'+str(pandaID)+'-1-2-3-4',
+data = {'eventRangeID':eventRangeID,
         'secretKey':secretKey,
         'eventStatus':'finished',
         'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
