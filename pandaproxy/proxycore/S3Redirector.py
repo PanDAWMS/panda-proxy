@@ -47,11 +47,10 @@ class S3Redirector:
         return key
 
 
-    def getFileInfo(self, file, privateKey, publicKey):
-        key = self.getKey(file, privateKey, publicKey, existed=True)
+    def getFileInfo(self, url, privateKey, publicKey):
+        key = self.getKey(url, privateKey, publicKey, existed=True)
         md5 = key.get_metadata("md5")
         return key.size, md5
-
 
 
     def setFileContentToS3(self, fileData, destination, privateKey, publicKey, 
@@ -65,9 +64,7 @@ class S3Redirector:
             key = self.getKey(destination, privateKey, publicKey)
             if key == None:
                 return False, "Failed to find the key on the dstination: %s" % destination
-	    #print "get key done: %s" % key
             # set file (and md5) to s3
-            #print file
             if fileChecksum:
                 key.set_metadata("md5", fileChecksum)
             size = key.set_contents_from_string(fileData)
@@ -84,9 +81,9 @@ class S3Redirector:
         return True, None
 
 
-    def getContent(self, file, privateKey, publicKey):
+    def getFileContent(self, url, privateKey, publicKey):
         # for test get the content in the file
-        key = self.getKey(file, privateKey, publicKey, existed=True)
+        key = self.getKey(url, privateKey, publicKey, existed=True)
         content = key.get_contents_as_string()
         return content
 

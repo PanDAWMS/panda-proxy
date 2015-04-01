@@ -65,13 +65,40 @@ print tmpDict
 privateKey = tmpDict['privateKey']
 publicKey  = tmpDict['publicKey']
 
+
 # upload file
+fileName = uuid.uuid4().hex
 data = {'pandaID':pandaID,
         'secretKey':secretKey,
         'publicKey':publicKey,
         'privateKey':privateKey,
-        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+uuid.uuid4().hex}
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
 files = {'uploadFile':('testFile',open('favicon.ico','rb'))}
 print data
 res = requests.post(proxyURL+'/setFileToS3',data=data,files=files)
 print res.text
+
+# get file info
+data = {'pandaID':pandaID,
+        'secretKey':secretKey,
+        'publicKey':publicKey,
+        'privateKey':privateKey,
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURL+'/getFileInfo',data=data)
+print res.json()
+
+# download file
+fH = open('{0}.out'.format(fileName),'wb')
+data = {'pandaID':pandaID,
+        'secretKey':secretKey,
+        'publicKey':publicKey,
+        'privateKey':privateKey,
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURL+'/getFileContent',data=data,stream=True)
+for chunk in res.iter_content(chunk_size=1024): 
+    if chunk:
+        fH.write(chunk)
+        fH.flush()
+fH.close()
+print res.status_code
+

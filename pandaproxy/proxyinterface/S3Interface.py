@@ -1,4 +1,5 @@
 import sys
+import json
 from proxycore import ProxyUtils
 from proxycore.ProxyCore import proxyCore
 from proxycore.S3Redirector import s3Redirector
@@ -10,6 +11,8 @@ from pandalogger.LogWrapper import LogWrapper
 _logger = PandaLogger().getLogger('S3Interface')
 
 
+
+# check if there are parameters to access to ObjectStore
 def checkS3KeyWords(kwd):
     # check key words
     chkStat,secretKey,url,newKwd = ProxyUtils.checkKeyWords(kwd)
@@ -32,6 +35,7 @@ def checkS3KeyWords(kwd):
 
 
 
+# get file info
 def getFileInfo(req, **kwd):
     logger = LogWrapper(_logger,"<getFileInfo>")
     # check key words
@@ -50,6 +54,7 @@ def getFileInfo(req, **kwd):
 
 
 
+# upload file
 def setFileToS3(req, **kwd):
     logger = LogWrapper(_logger,"<setFileToS3>")
     # check key words
@@ -87,15 +92,19 @@ def setFileToS3(req, **kwd):
 
 
 
+# download file contents
 def getFileContent(req, **kwd):
-#def getFileContent(kwd):
+    logger = LogWrapper(_logger,"<getFileContent>")
     # check key words
-    state, map, info = checkS3KeyWords(kwd)
-    if not state:
-        return "ERROR :"+info
+    tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd)
+    if not tmpState:
+        logger.error(errMsg)
+        return "ERROR : "+errMsg
     try:
-        s3 = S3ObjectStore(map['S3secretKey'], map['accessKey'])
-        ret = s3.getContent(map['url'])
+        ret = s3Redirector.getFileContent(url, newKwd['privateKey'], newKwd['publicKey'])
         return ret
-    except Exception as e:
-        return str(e)
+    except:
+        errType,errValue = sys.exc_info()[:2]
+        errMsg = "internal server error {0}:{1}".format(errType,errValue)
+        logger.error(errMsg)
+        return "ERROR : "+errMsg
