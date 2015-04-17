@@ -138,11 +138,17 @@ def getKeyPair(req,**kwd):
     # decode key pair
     try:
         dic = cgi.parse_qs(redOut)
+        # use the fisrt entry
+        newDict = {}
+        for item in dic.keys():
+            newDict[item]= dic[item][0]
+        dic = newDict
+        # replace keys
         for item in ['publicKey','privateKey']:
             nameKey = '{0}Name'.format(item)
             # make key-value
             key = '{0}:{1}'.format(item,newKwd[nameKey])
-            value = dic[item][0]
+            value = dic[item]
             # keep in memory
             tmpStat,tmpOut = httpRedirector.proxyCore.insertKeyValue(key,value)
             if not tmpStat:

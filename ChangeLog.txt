@@ -1,5 +1,8 @@
 Release Notes
 
+* 4/17/2015
+  * returning an array of status code for getKeyPair
+
 * 4/1/2015
   * moved remote host config to cfg
   * added getFileContent
