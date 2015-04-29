@@ -4,6 +4,13 @@ import boto
 import boto.s3.connection
 import boto.s3.key 
 
+# logger
+from pandalogger.PandaLogger import PandaLogger
+from pandalogger.LogWrapper import LogWrapper
+_logger = PandaLogger().getLogger('S3Redirector')
+
+
+
 class S3Redirector:
     # constructor
     def __init__(self):
@@ -60,20 +67,26 @@ class S3Redirector:
         # destination: url with this format: http://hostname:port/bucketname/filename
         # bucketname can't contain UPPER charater 
         #
+        logger = LogWrapper(_logger,"<setFileContentToS3>")
         try:
+            logger.debug(1)
             key = self.getKey(destination, privateKey, publicKey)
             if key == None:
                 return False, "Failed to find the key on the dstination: %s" % destination
             # set file (and md5) to s3
+            logger.debug(2)
             if fileChecksum:
                 key.set_metadata("md5", fileChecksum)
+            logger.debug(3)
             size = key.set_contents_from_string(fileData)
+            logger.debug(4)
 	    # check size
             if fileSize and str(fileSize) != str(key.size):
                 return False, "File size(%s) does not matched with remote size(%s)" % (fileSize, key.size)
             # check md5 
             if fileChecksum and fileChecksum != key.md5:
                 return False, "Flie checksum(%s) does not matched with remote checksum(%s)" % (fileChecksum, key.md5)
+            logger.debug(5)
         except:
             errType,errValue = sys.exc_info()[:2]
             errMsg = "failed to upload with {0}:{1}".format(errType,errValue)

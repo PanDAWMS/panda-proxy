@@ -1,5 +1,8 @@
 Release Notes
 
+* 4/29/2015
+  * fixed S3I/F to return StatusCode
+
 * 4/17/2015
   * returning an array of status code for getKeyPair
 

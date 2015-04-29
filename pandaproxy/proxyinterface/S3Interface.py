@@ -1,5 +1,6 @@
 import sys
 import json
+import InterfaceUtils
 from proxycore import ProxyUtils
 from proxycore.ProxyCore import proxyCore
 from proxycore.S3Redirector import s3Redirector
@@ -42,15 +43,15 @@ def getFileInfo(req, **kwd):
     tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd)
     if not tmpState:
         logger.error(errMsg)
-        return "ERROR : "+errMsg
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
     try:
         ret = s3Redirector.getFileInfo(url, newKwd['privateKey'], newKwd['publicKey'])
-        return json.dumps(ret)
+        return InterfaceUtils.makeResponse(0,"OK",{'fileInfo':json.dumps(ret)})
     except:
         errType,errValue = sys.exc_info()[:2]
         errMsg = "internal server error {0}:{1}".format(errType,errValue)
         logger.error(errMsg)
-        return "ERROR : "+errMsg
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
 
 
 
@@ -61,12 +62,12 @@ def setFileToS3(req, **kwd):
     tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd)
     if not tmpState:
         logger.error(errMsg)
-        return "ERROR : "+errMsg
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
     # check params
     if not 'uploadFile' in newKwd:
         errMsg = "no uploadFile"
         logger.error(errMsg)
-        return "ERROR : "+errMsg
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
     fileSize = None
     if 'fileSize' in newKwd:
         fileSize = newKwd['fileSize']
@@ -82,13 +83,13 @@ def setFileToS3(req, **kwd):
                                                          fileChecksum)
         if not tmpStat:
             logger.error(errMsg)
-            return "ERROR : "+errMsg
-        return "OK"
+            return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+        return InterfaceUtils.makeResponse(0,"OK")
     except:
         errType,errValue = sys.exc_info()[:2]
         errMsg = "internal server error {0}:{1}".format(errType,errValue)
         logger.error(errMsg)
-        return "ERROR : "+errMsg
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
 
 
 
