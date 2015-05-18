@@ -14,7 +14,7 @@ _logger = PandaLogger().getLogger('HttpInterface')
 
 # insert secretKey
 def insertSecretKeyForPandaID(req,pandaID,secretKey=None):
-    logger = LogWrapper(_logger,"<PandaID={0}>".format(pandaID))
+    logger = LogWrapper(_logger,"insertSecretKeyForPandaID <PandaID={0}>".format(pandaID))
     retDict = {}
     # check permission
     if not ProxyUtils.hasPermission(req):
@@ -53,7 +53,8 @@ def insertSecretKeyForPandaID(req,pandaID,secretKey=None):
 
 # get event ranges
 def getEventRanges(req,**kwd):
-    logger = LogWrapper(_logger,"<getEventRanges>")
+    logger = LogWrapper(_logger,"getEventRanges <{0}>".format(str(kwd)))
+    logger.debug("start")
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
@@ -74,12 +75,15 @@ def getEventRanges(req,**kwd):
         logger.error(errMsg)
         return "ERROR : "+errMsg
     # return
+    logger.debug("done with {0}".format(str(redOut)))
     return redOut
 
 
 
 # update event range
 def updateEventRange(req,**kwd):
+    logger = LogWrapper(_logger,"updateEventRange <{0}>".format(str(kwd)))
+    logger.debug("start")
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
@@ -107,13 +111,15 @@ def updateEventRange(req,**kwd):
         logger.error(errMsg)
         return "ERROR : "+errMsg
     # return
+    logger.debug("done with {0}".format(str(redOut)))
     return redOut
 
 
 
 # get key pair
 def getKeyPair(req,**kwd):
-    logger = LogWrapper(_logger,"<getKeyPair>")
+    logger = LogWrapper(_logger,"getKeyPair <{0}>".format(str(kwd)))
+    logger.debug("start")
     # check key words
     chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
     if not chkStat:
@@ -165,6 +171,7 @@ def getKeyPair(req,**kwd):
         logger.error(errMsg)
         return "ERROR : "+errMsg
     # return
+    logger.debug("done with {0}".format(str(redOut)))
     return redOut
 
 

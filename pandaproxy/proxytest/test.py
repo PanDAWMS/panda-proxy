@@ -85,7 +85,7 @@ data = {'pandaID':pandaID,
         'privateKey':privateKey,
         'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
 res = requests.post(proxyURL+'/getFileInfo',data=data)
-print res.json()
+print cgi.parse_qs(res.text.encode('ascii'))
 
 # download file
 fH = open('{0}.out'.format(fileName),'wb')

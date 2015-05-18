@@ -182,6 +182,10 @@ setup(
                 ('usr/bin', ['templates/panda_proxy-vomsrenew.sh.exe.template',
                              ]
                  ),
+                # logrotate
+                ('etc/logrotate.d', ['templates/logrotate.d/panda_proxy.template',
+                                     ]
+                 ),
                 ],
     cmdclass={'install': install_panda,
               'install_data': install_data_panda}
