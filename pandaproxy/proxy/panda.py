@@ -20,8 +20,8 @@ allowedMethods += ['insertSecretKeyForPandaID','getEventRanges','updateEventRang
                    'testIF']
 
 from proxyinterface.S3Interface import \
-    getFileInfo,setFileToS3,getFileContent
-allowedMethods += ['getFileInfo','setFileToS3','getFileContent']
+    getFileInfo,setFileToS3,getFileContent,getPresignedURL
+allowedMethods += ['getFileInfo','setFileToS3','getFileContent','getPresignedURL']
 
 
 # application

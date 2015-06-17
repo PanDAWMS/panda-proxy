@@ -109,3 +109,22 @@ def getFileContent(req, **kwd):
         errMsg = "internal server error {0}:{1}".format(errType,errValue)
         logger.error(errMsg)
         return "ERROR : "+errMsg
+
+
+
+# get pre-signed URL
+def getPresignedURL(req, **kwd):
+    logger = LogWrapper(_logger,"<getFileInfo>")
+    # check key words
+    tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd)
+    if not tmpState:
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+    try:
+        ret = s3Redirector.getPresignedURL(url, newKwd['privateKey'], newKwd['publicKey'])
+        return InterfaceUtils.makeResponse(0,"OK",{'presignedURL':ret})
+    except:
+        errType,errValue = sys.exc_info()[:2]
+        errMsg = "internal server error {0}:{1}".format(errType,errValue)
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)

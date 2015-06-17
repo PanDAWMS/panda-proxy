@@ -102,3 +102,12 @@ for chunk in res.iter_content(chunk_size=1024):
 fH.close()
 print res.status_code
 
+# get pre-signed URL
+fileName = uuid.uuid4().hex
+data = {'pandaID':pandaID,
+        'secretKey':secretKey,
+        'publicKey':publicKey,
+        'privateKey':privateKey,
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURL+'/getPresignedURL',data=data)
+print cgi.parse_qs(res.text.encode('ascii'))

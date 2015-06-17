@@ -101,6 +101,12 @@ class S3Redirector:
         return content
 
 
+    # get pre-signed URL
+    def getPresignedURL(self, url, privateKey, publicKey):
+        key = self.getKey(url, privateKey, publicKey)
+        return key.generate_url(60*60*24*14)
+
+
 
 # singleton
 s3Redirector = S3Redirector()
