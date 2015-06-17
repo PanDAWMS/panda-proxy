@@ -104,7 +104,8 @@ class S3Redirector:
     # get pre-signed URL
     def getPresignedURL(self, url, privateKey, publicKey):
         key = self.getKey(url, privateKey, publicKey)
-        return key.generate_url(60*60*24*14)
+        return key.generate_url(60*60*24*14,'PUT',query_auth=True,force_http=False)
+
 
 
 

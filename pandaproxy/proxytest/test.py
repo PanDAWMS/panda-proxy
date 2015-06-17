@@ -110,4 +110,18 @@ data = {'pandaID':pandaID,
         'privateKey':privateKey,
         'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
 res = requests.post(proxyURL+'/getPresignedURL',data=data)
+tmpDict = cgi.parse_qs(res.text.encode('ascii'))
+print tmpDict
+
+# upload file with pre-signed URL
+presignedURL = tmpDict['presignedURL'][0]
+os.system('curl -v --request PUT  --upload-file {0} "{1}"'.format('favicon.ico',presignedURL))
+
+# get file info
+data = {'pandaID':pandaID,
+        'secretKey':secretKey,
+        'publicKey':publicKey,
+        'privateKey':privateKey,
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURL+'/getFileInfo',data=data)
 print cgi.parse_qs(res.text.encode('ascii'))
