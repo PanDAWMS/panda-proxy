@@ -102,7 +102,7 @@ for chunk in res.iter_content(chunk_size=1024):
 fH.close()
 print res.status_code
 
-# get pre-signed URL
+# get pre-signed URL for PUT
 fileName = uuid.uuid4().hex
 data = {'pandaID':pandaID,
         'secretKey':secretKey,
@@ -125,3 +125,14 @@ data = {'pandaID':pandaID,
         'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
 res = requests.post(proxyURL+'/getFileInfo',data=data)
 print cgi.parse_qs(res.text.encode('ascii'))
+
+# get pre-signed URL for GET
+data = {'pandaID':pandaID,
+        'secretKey':secretKey,
+        'publicKey':publicKey,
+        'privateKey':privateKey,
+        'method':'GET',
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURL+'/getPresignedURL',data=data)
+tmpDict = cgi.parse_qs(res.text.encode('ascii'))
+print tmpDict

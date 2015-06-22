@@ -120,8 +120,16 @@ def getPresignedURL(req, **kwd):
     if not tmpState:
         logger.error(errMsg)
         return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+    # method
+    if 'method' in newKwd:
+        method = newKwd['method']
+    else:
+        method = 'PUT'
     try:
-        ret = s3Redirector.getPresignedURL(url, newKwd['privateKey'], newKwd['publicKey'])
+        tmpStat,errMsg,ret = s3Redirector.getPresignedURL(url,newKwd['privateKey'],newKwd['publicKey'],method)
+        if not tmpStat:
+            logger.error(errMsg)
+            return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
         return InterfaceUtils.makeResponse(0,"OK",{'presignedURL':ret})
     except:
         errType,errValue = sys.exc_info()[:2]

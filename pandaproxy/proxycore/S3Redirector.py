@@ -18,7 +18,24 @@ class S3Redirector:
         self.proxyCore = proxyCore
 
 
-    def getKey(self, url, privateKey, publicKey, existed=False):
+
+    # get connection
+    def getConnection(self,access_key,secret_key,hostname,port):
+        # connect to s3
+        self.__connect = boto.connect_s3(
+            aws_access_key_id = access_key,
+            aws_secret_access_key = secret_key,
+            host = hostname,
+            port = port,
+            is_secure=False,
+            calling_format = boto.s3.connection.OrdinaryCallingFormat(),
+            )
+        return
+
+
+
+    # get connection parameters
+    def getConParams(self, url, privateKey, publicKey):
         #
 	# url format: http://hostname:port/bucketname/filename
         # bucketname can't contain UPPER charater 
@@ -34,15 +51,18 @@ class S3Redirector:
         # get key-pairs from Memory
         tmpStat,access_key = self.proxyCore.getValue(publicKey)
         tmpStat,secret_key = self.proxyCore.getValue(privateKey)
+        return access_key,secret_key,hostname,port,bucket_name,key_name
+
+
+
+    # get key
+    def getKey(self, url, privateKey, publicKey, existed=False):
+        # get connection parameters
+        access_key,secret_key,hostname,port,bucket_name,key_name \
+            = self.getConParams(url,privateKey,publicKey)
         # connect to s3
-        self.__connect = boto.connect_s3(
-            aws_access_key_id = access_key,
-            aws_secret_access_key = secret_key,
-            host = hostname,
-            port = port,
-            is_secure=False,
-            calling_format = boto.s3.connection.OrdinaryCallingFormat(),
-            )
+        self.getConnection(access_key,secret_key,hostname,port)
+        # get key
         if not existed:
             # create a new bucket and key
             bucket = self.__connect.create_bucket(bucket_name)    
@@ -54,12 +74,16 @@ class S3Redirector:
         return key
 
 
+    
+    # get file info
     def getFileInfo(self, url, privateKey, publicKey):
         key = self.getKey(url, privateKey, publicKey, existed=True)
         md5 = key.get_metadata("md5")
         return key.size, md5
 
 
+
+    # upload file
     def setFileContentToS3(self, fileData, destination, privateKey, publicKey, 
                            fileSize=None, fileChecksum=None):
         #
@@ -94,6 +118,8 @@ class S3Redirector:
         return True, None
 
 
+    
+    # read file
     def getFileContent(self, url, privateKey, publicKey):
         # for test get the content in the file
         key = self.getKey(url, privateKey, publicKey, existed=True)
@@ -101,11 +127,19 @@ class S3Redirector:
         return content
 
 
-    # get pre-signed URL
-    def getPresignedURL(self, url, privateKey, publicKey):
-        key = self.getKey(url, privateKey, publicKey)
-        return key.generate_url(60*60*24*14,'PUT',query_auth=True,force_http=False)
 
+    # get pre-signed URL
+    def getPresignedURL(self, url, privateKey, publicKey, method):
+        if method in ['GET','PUT']:
+            # get connection parameters
+            access_key,secret_key,hostname,port,bucket_name,key_name \
+                = self.getConParams(url,privateKey,publicKey)
+            # connect to s3
+            self.getConnection(access_key,secret_key,hostname,port)
+            return True,'',self.__connect.generate_url(60*60,method,query_auth=True,force_http=False,
+                                                       bucket=bucket_name,key=key_name)
+        else:
+            return False,"unsupported method {0}".format(method),None
 
 
 
