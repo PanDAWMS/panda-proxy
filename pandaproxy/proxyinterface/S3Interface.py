@@ -4,6 +4,7 @@ import InterfaceUtils
 from proxycore import ProxyUtils
 from proxycore.ProxyCore import proxyCore
 from proxycore.S3Redirector import s3Redirector
+from proxycore.PandaCache import pandaCache
 
 
 # logger
@@ -14,24 +15,26 @@ _logger = PandaLogger().getLogger('S3Interface')
 
 
 # check if there are parameters to access to ObjectStore
-def checkS3KeyWords(kwd):
+def checkS3KeyWords(kwd,https=False):
     # check key words
-    chkStat,secretKey,url,newKwd = ProxyUtils.checkKeyWords(kwd)
+    chkStat,secretKey,url,newKwd = ProxyUtils.checkKeyWords(kwd,https=https)
     if not chkStat:
         errMsg = newKwd
         return False,None,None,errMsg
     # get PandaID
-    if not 'pandaID' in newKwd:
-        return False,None,None,"no PandaID"
-    pandaID = newKwd['pandaID']
-    del newKwd['pandaID']
+    if not https:
+        if not 'pandaID' in newKwd:
+            return False,None,None,"no PandaID"
+        pandaID = newKwd['pandaID']
+        del newKwd['pandaID']
     # check key-pairs
     for tmpKey in ['publicKey','privateKey']:
         if not tmpKey in newKwd:
             return False,None,None,"{0} is not given".format(tmpKey)
     # check secret key
-    if not proxyCore.checkSecretKey(pandaID,secretKey):
-        return False,None,None,"wrong key"
+    if not https:
+        if not proxyCore.checkSecretKey(pandaID,secretKey):
+            return False,None,None,"wrong key"
     return True,url,newKwd,""
 
 
@@ -115,8 +118,18 @@ def getFileContent(req, **kwd):
 # get pre-signed URL
 def getPresignedURL(req, **kwd):
     logger = LogWrapper(_logger,"<getFileInfo>")
+    # check for HTTPS
+    tmpState,errMsg = checkPermissionHTTPS(req)
+    if tmpState == False:
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+    # authorized with HTTPS
+    if tmpState == True:
+        https = True
+    else:
+        https = False
     # check key words
-    tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd)
+    tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd,https)
     if not tmpState:
         logger.error(errMsg)
         return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
@@ -136,3 +149,24 @@ def getPresignedURL(req, **kwd):
         errMsg = "internal server error {0}:{1}".format(errType,errValue)
         logger.error(errMsg)
         return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+
+
+
+# check permission for HTTPS
+def checkPermissionHTTPS(req):
+    # no SSL
+    if not 'SSL_CLIENT_S_DN' in req.subprocess_env:
+        # not applicable
+        return None,None
+    # get DN
+    dn = req.subprocess_env['SSL_CLIENT_S_DN']
+    # get DN list
+    tmpStat,dnList = pandaCache.getDNsForS3()
+    if not tmpStat:
+        return False,'Failed to get authorized DN list'
+    # loop over all DNs
+    for tmpDN in dnList:
+        if tmpDN in dn:
+            return True,None
+    return False,'Authorization failure'
+

@@ -103,6 +103,8 @@ fH.close()
 print res.status_code
 
 # get pre-signed URL for PUT
+print
+print "get pre-signed URL for PUT"
 fileName = uuid.uuid4().hex
 data = {'pandaID':pandaID,
         'secretKey':secretKey,
@@ -112,6 +114,20 @@ data = {'pandaID':pandaID,
 res = requests.post(proxyURL+'/getPresignedURL',data=data)
 tmpDict = cgi.parse_qs(res.text.encode('ascii'))
 print tmpDict
+
+# get pre-signed URL for PUT with https
+print
+print "get pre-signed URL for PUT with https"
+fileName = uuid.uuid4().hex
+data = {'publicKey':publicKey,
+        'privateKey':privateKey,
+        'url':'http://cephgw.usatlas.bnl.gov:8443/pandaproxytest2/'+fileName}
+res = requests.post(proxyURLSSL+'/getPresignedURL',data=data,
+                    verify=ca_certs,
+                    cert=(cert_file,key_file))
+tmpDict = cgi.parse_qs(res.text.encode('ascii'))
+print tmpDict
+
 
 # upload file with pre-signed URL
 presignedURL = tmpDict['presignedURL'][0]

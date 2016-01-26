@@ -19,11 +19,15 @@ class DummyReq:
 
 
 # check key words
-def checkKeyWords(kwd):
-    if not 'secretKey' in kwd:
-        return False,None,None,'no secretKey'
-    secretKey = kwd['secretKey']
-    del kwd['secretKey']
+def checkKeyWords(kwd,https=False):
+    if not https:
+        if not 'secretKey' in kwd:
+            return False,None,None,'no secretKey'
+        secretKey = kwd['secretKey']
+        del kwd['secretKey']
+    else:
+        # dummy secret key for https
+        secretKey = None
     if 'baseURL' in kwd:
         baseURL = kwd['baseURL'] 
         del kwd['baseURL']

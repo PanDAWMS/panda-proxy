@@ -1,5 +1,24 @@
 ##########################
 #
+# PanDA parameters
+#
+
+[panda]
+
+# panda server alias
+pserveralias = pandaserver.cern.ch
+
+# port for https
+pserverport = 25443
+
+# port for http
+pserverporthttp = 25080
+
+
+
+
+##########################
+#
 # HTTP parameters
 #
 
@@ -7,3 +26,4 @@
 
 # remote host config
 hostConfig = aipanda007.cern.ch:25443|pandaserver.cern.ch:25443,ca_certs^/etc/pki/tls/certs/CERN-bundle.pem,key_file^env:X509_USER_PROXY,cert_file^env:X509_USER_PROXY
+
