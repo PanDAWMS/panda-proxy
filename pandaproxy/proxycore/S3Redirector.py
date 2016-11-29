@@ -143,5 +143,41 @@ class S3Redirector:
 
 
 
+    # get pre-signed URLs
+    def getPresignedURLs(self,urlList,method):
+        if method in ['GET','PUT']:
+            # get connection parameters
+            connParams = {}
+            for url,privateKey,publicKey in urlList:
+                access_key,secret_key,hostname,port,bucket_name,key_name \
+                    = self.getConParams(url,privateKey,publicKey)
+                # collect connection parameters
+                mapKey = (access_key,secret_key,hostname,port)
+                if not mapKey in connParams:
+                    connParams[mapKey] = []
+                connParams[mapKey].append((url,bucket_name,key_name))
+            # connect to s3
+            retMap = {}
+            for mapKey,connParamList in connParams.iteritems():
+                access_key,secret_key,hostname,port = mapKey
+                self.getConnection(access_key,secret_key,hostname,port)
+                # get URLs
+                for url,bucket_name,key_name in connParamList:
+                    try:
+                        retMap[url] = {'error':None,
+                                       'signedURL':self.__connect.generate_url(60*60,method,query_auth=True,force_http=False,
+                                                                               bucket=bucket_name,key=key_name)
+                                       }
+                    except:
+                        errType,errValue = sys.exc_info()[:2]
+                        retMap[url] = {'error': 'failed with {0}:{1}'.format(errType,errValue),
+                                       'signedURL':None
+                                       }
+            return True,'',retMap
+        else:
+            return False,"unsupported method {0}".format(method),None
+
+
+
 # singleton
 s3Redirector = S3Redirector()

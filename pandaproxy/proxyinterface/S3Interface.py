@@ -15,9 +15,9 @@ _logger = PandaLogger().getLogger('S3Interface')
 
 
 # check if there are parameters to access to ObjectStore
-def checkS3KeyWords(kwd,https=False):
+def checkS3KeyWords(kwd,https=False,isBulk=False):
     # check key words
-    chkStat,secretKey,url,newKwd = ProxyUtils.checkKeyWords(kwd,https=https)
+    chkStat,secretKey,url,newKwd = ProxyUtils.checkKeyWords(kwd,https,isBulk)
     if not chkStat:
         errMsg = newKwd
         return False,None,None,errMsg
@@ -28,9 +28,10 @@ def checkS3KeyWords(kwd,https=False):
         pandaID = newKwd['pandaID']
         del newKwd['pandaID']
     # check key-pairs
-    for tmpKey in ['publicKey','privateKey']:
-        if not tmpKey in newKwd:
-            return False,None,None,"{0} is not given".format(tmpKey)
+    if not isBulk:
+        for tmpKey in ['publicKey','privateKey']:
+            if not tmpKey in newKwd:
+                return False,None,None,"{0} is not given".format(tmpKey)
     # check secret key
     if not https:
         if not proxyCore.checkSecretKey(pandaID,secretKey):
@@ -117,7 +118,7 @@ def getFileContent(req, **kwd):
 
 # get pre-signed URL
 def getPresignedURL(req, **kwd):
-    logger = LogWrapper(_logger,"<getFileInfo>")
+    logger = LogWrapper(_logger,"<getPresignedURL>")
     # check for HTTPS
     tmpState,errMsg = checkPermissionHTTPS(req)
     if tmpState == False:
@@ -140,6 +141,43 @@ def getPresignedURL(req, **kwd):
         method = 'PUT'
     try:
         tmpStat,errMsg,ret = s3Redirector.getPresignedURL(url,newKwd['privateKey'],newKwd['publicKey'],method)
+        if not tmpStat:
+            logger.error(errMsg)
+            return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+        return InterfaceUtils.makeResponse(0,"OK",{'presignedURL':ret})
+    except:
+        errType,errValue = sys.exc_info()[:2]
+        errMsg = "internal server error {0}:{1}".format(errType,errValue)
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+
+
+
+# get pre-signed URLs
+def getPresignedURLs(req, **kwd):
+    logger = LogWrapper(_logger,"<getPresignedURLs>")
+    # check for HTTPS
+    tmpState,errMsg = checkPermissionHTTPS(req)
+    if tmpState == False:
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+    # authorized with HTTPS
+    if tmpState == True:
+        https = True
+    else:
+        https = False
+    # check key words
+    tmpState,url,newKwd,errMsg = checkS3KeyWords(kwd,https,True)
+    if not tmpState:
+        logger.error(errMsg)
+        return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
+    # method
+    if 'method' in newKwd:
+        method = newKwd['method']
+    else:
+        method = 'PUT'
+    try:
+        tmpStat,errMsg,ret = s3Redirector.getPresignedURL(newKwd['urlList'],method)
         if not tmpStat:
             logger.error(errMsg)
             return InterfaceUtils.makeResponse(10,"ERROR : "+errMsg)
