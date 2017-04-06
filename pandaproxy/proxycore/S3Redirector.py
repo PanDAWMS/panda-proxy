@@ -86,7 +86,7 @@ class S3Redirector:
         md5 = key.md5
         if md5 is None:
             md5 = key.get_metadata("md5")
-        return key.size, md5
+        return {'size':key.size, 'md5':md5, 'etag':key.etag}
 
 
 

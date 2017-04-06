@@ -5,7 +5,7 @@ source @@install_dir@@/etc/sysconfig/panda_proxy-sysconfig
 
 NOVOMS=${X509_USER_PROXY}_novoms
 
-voms-proxy-init -voms atlas:/atlas/Role=production -out $X509_USER_PROXY -valid 96:00 -cert=$NOVOMS
+voms-proxy-init -rfc -voms atlas:/atlas/Role=production -out $X509_USER_PROXY -valid 96:00 -cert=$NOVOMS
 
 # check lifetime of certificate
 grid-proxy-info -e -h 504 -f $NOVOMS
