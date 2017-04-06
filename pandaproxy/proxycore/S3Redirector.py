@@ -20,14 +20,18 @@ class S3Redirector:
 
 
     # get connection
-    def getConnection(self,access_key,secret_key,hostname,port):
+    def getConnection(self,access_key,secret_key,hostname,port,scheme):
+        if scheme == 'https':
+            is_secure = True
+        else:
+            is_secure = False
         # connect to s3
         self.__connect = boto.connect_s3(
             aws_access_key_id = access_key,
             aws_secret_access_key = secret_key,
             host = hostname,
             port = port,
-            is_secure=False,
+            is_secure = is_secure,
             calling_format = boto.s3.connection.OrdinaryCallingFormat(),
             )
         return
@@ -51,17 +55,18 @@ class S3Redirector:
         # get key-pairs from Memory
         tmpStat,access_key = self.proxyCore.getValue(publicKey)
         tmpStat,secret_key = self.proxyCore.getValue(privateKey)
-        return access_key,secret_key,hostname,port,bucket_name,key_name
+        scheme = parsed.scheme
+        return access_key,secret_key,hostname,port,bucket_name,key_name,scheme
 
 
 
     # get key
     def getKey(self, url, privateKey, publicKey, existed=False):
         # get connection parameters
-        access_key,secret_key,hostname,port,bucket_name,key_name \
+        access_key,secret_key,hostname,port,bucket_name,key_name,scheme \
             = self.getConParams(url,privateKey,publicKey)
         # connect to s3
-        self.getConnection(access_key,secret_key,hostname,port)
+        self.getConnection(access_key,secret_key,hostname,port,scheme)
         # get key
         if not existed:
             # create a new bucket and key
@@ -78,7 +83,9 @@ class S3Redirector:
     # get file info
     def getFileInfo(self, url, privateKey, publicKey):
         key = self.getKey(url, privateKey, publicKey, existed=True)
-        md5 = key.get_metadata("md5")
+        md5 = key.md5
+        if md5 is None:
+            md5 = key.get_metadata("md5")
         return key.size, md5
 
 
@@ -98,12 +105,9 @@ class S3Redirector:
             if key == None:
                 return False, "Failed to find the key on the dstination: %s" % destination
             # set file (and md5) to s3
-            logger.debug(2)
             if fileChecksum:
                 key.set_metadata("md5", fileChecksum)
-            logger.debug(3)
             size = key.set_contents_from_string(fileData)
-            logger.debug(4)
 	    # check size
             if fileSize and str(fileSize) != str(key.size):
                 return False, "File size(%s) does not matched with remote size(%s)" % (fileSize, key.size)
@@ -132,10 +136,10 @@ class S3Redirector:
     def getPresignedURL(self, url, privateKey, publicKey, method):
         if method in ['GET','PUT']:
             # get connection parameters
-            access_key,secret_key,hostname,port,bucket_name,key_name \
+            access_key,secret_key,hostname,port,bucket_name,key_name,scheme \
                 = self.getConParams(url,privateKey,publicKey)
             # connect to s3
-            self.getConnection(access_key,secret_key,hostname,port)
+            self.getConnection(access_key,secret_key,hostname,port,scheme)
             return True,'',self.__connect.generate_url(60*60,method,query_auth=True,force_http=False,
                                                        bucket=bucket_name,key=key_name)
         else:
@@ -149,7 +153,7 @@ class S3Redirector:
             # get connection parameters
             connParams = {}
             for url,privateKey,publicKey in urlList:
-                access_key,secret_key,hostname,port,bucket_name,key_name \
+                access_key,secret_key,hostname,port,bucket_name,key_name,scheme \
                     = self.getConParams(url,privateKey,publicKey)
                 # collect connection parameters
                 mapKey = (access_key,secret_key,hostname,port)
@@ -160,7 +164,7 @@ class S3Redirector:
             retMap = {}
             for mapKey,connParamList in connParams.iteritems():
                 access_key,secret_key,hostname,port = mapKey
-                self.getConnection(access_key,secret_key,hostname,port)
+                self.getConnection(access_key,secret_key,hostname,port,scheme)
                 # get URLs
                 for url,bucket_name,key_name in connParamList:
                     try:
