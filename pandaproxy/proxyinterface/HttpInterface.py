@@ -116,6 +116,37 @@ def updateEventRange(req,**kwd):
 
 
 
+# update event ranges
+def updateEventRanges(req,**kwd):
+    logger = LogWrapper(_logger,"updateEventRanges <{0}>".format(str(kwd)))
+    logger.debug("start")
+    # check key words
+    chkStat,secretKey,baseURL,newKwd = ProxyUtils.checkKeyWords(kwd)
+    if not chkStat:
+        errMsg = newKwd
+        logger.error(errMsg)
+        return "ERROR : "+errMsg
+    # check URL
+    baseURL += '/updateEventRanges'
+    # extract PandaID
+    try:
+        pandaID = json.loads(newKwd['eventRanges'])[0]['eventRangeID'].split('-')[1]
+    except:
+        errMsg = "failed to extract PandaID from eventRangeID"
+        logger.error(errMsg)
+        return "ERROR : "+errMsg
+    # exec
+    redStat,redOut = httpRedirector.redirect(pandaID,secretKey,baseURL,newKwd)
+    if redStat != 0:
+        errMsg = "failed with {0} : {1}".format(redStat,redOut)
+        logger.error(errMsg)
+        return "ERROR : "+errMsg
+    # return
+    logger.debug("done with {0}".format(str(redOut)))
+    return redOut
+
+
+
 # get key pair
 def getKeyPair(req,**kwd):
     logger = LogWrapper(_logger,"getKeyPair <{0}>".format(str(kwd)))

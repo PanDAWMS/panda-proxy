@@ -2,6 +2,7 @@
 # $ python /data/atlpan/srv/lib/python*/site-packages/pandaproxy/proxytest/test.py
 
 import os
+import json
 import uuid
 import requests
 
@@ -47,9 +48,19 @@ eventRangeID = '0-'+str(pandaID)+'-1-2-3-4'
 # update event range
 data = {'eventRangeID':eventRangeID,
         'secretKey':secretKey,
-        'eventStatus':'finished',
+        'eventStatus':'running',
         'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
 res = requests.post(proxyURL+'/updateEventRange',data)
+print res.text.encode('ascii')
+
+# update event ranges
+data = {'eventRanges':json.dumps([{'eventRangeID':eventRangeID,
+                                   'eventStatus':'finished',
+                                   'objstoreID':123,
+                                   'errorCode':5}]),
+        'secretKey':secretKey,
+        'baseURL':'https://pandaserver.cern.ch:25443/server/panda'}
+res = requests.post(proxyURL+'/updateEventRanges',data)
 print res.text.encode('ascii')
 
 # get key-pair
